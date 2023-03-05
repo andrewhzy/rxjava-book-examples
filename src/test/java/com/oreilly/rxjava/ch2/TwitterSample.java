@@ -13,7 +13,6 @@ import twitter4j.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-@Ignore
 public class TwitterSample {
 
 	private static final Logger log = LoggerFactory.getLogger(TwitterSample.class);

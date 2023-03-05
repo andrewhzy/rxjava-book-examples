@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-@Ignore
+
 public class Chapter1 {
 
 	private static final String SOME_KEY = "FOO";
@@ -62,8 +62,9 @@ public class Chapter1 {
 						});
 			}
 		}).subscribe(s -> System.out.println(s));
+		System.out.println("------");
 
-		Sleeper.sleep(Duration.ofSeconds(2));
+		Sleeper.sleep(Duration.ofMillis(10000));
 	}
 
 	private void putInCache(String key, String value) {
@@ -101,14 +102,16 @@ public class Chapter1 {
 	public void sample_94() throws Exception {
 		Observable.<Integer>create(s -> {
 			//... async subscription and data emission ...
-			new Thread(() -> s.onNext(42), "MyThread").start();
+			new Thread(() -> s.onNext(42), "MyThread---").start();
 		})
 				.doOnNext(i -> System.out.println(Thread.currentThread()))
 				.filter(i -> i % 2 == 0)
 				.map(i -> "Value " + i + " processed on " + Thread.currentThread())
 				.subscribe(s -> System.out.println("SOME VALUE =>" + s));
+
+//		System.out.println(Thread.currentThread());
 		System.out.println("Will print BEFORE values are emitted because Observable is async");
-		Sleeper.sleep(Duration.ofSeconds(1));
+//		Sleeper.sleep(Duration.ofSeconds(1));
 	}
 
 	@Test
@@ -141,7 +144,9 @@ public class Chapter1 {
 			}).start();
 
 			// ignoring need to emit s.onCompleted() due to race of threads
-		});
+		}).subscribe(System.out::println);
+		Sleeper.sleep(Duration.ofMillis(100));
+		;
 		// DO NOT DO THIS
 	}
 
@@ -164,14 +169,19 @@ public class Chapter1 {
 		});
 
 		// this subscribes to a and b concurrently, and merges into a third sequential stream
-		Observable<String> c = Observable.merge(a, b);
+		Observable<String> c = Observable.concat(a, b);
+//		c.concatWith(Observable.merge(a,b));
+		c.subscribe(System.out::println);
+		c.subscribe(System.out::println);
+		System.out.println("--------");
+		Sleeper.sleep(Duration.ofMillis(100));
 	}
 
 	@Test
 	public void sample_164() throws Exception {
 		String args = SOME_KEY;
 		Observable<String> someData = Observable.create(s -> {
-			getDataFromServerWithCallback(args, data -> {
+			getDataFromServerWithCallback(data -> {
 				s.onNext(data);
 				s.onCompleted();
 			});
@@ -187,7 +197,7 @@ public class Chapter1 {
 
 	}
 
-	private void getDataFromServerWithCallback(String args, Consumer<String> consumer) {
+	private void getDataFromServerWithCallback( Consumer<String> consumer) {
 		consumer.accept("Random: " + Math.random());
 	}
 
@@ -196,7 +206,7 @@ public class Chapter1 {
 		// Iterable<String> as Stream<String>
 		// that contains 75 strings
 		getDataFromLocalMemorySynchronously()
-				.skip(10)
+				.skip(90)
 				.limit(5)
 				.map(s -> s + "_transformed")
 				.forEach(System.out::println);
@@ -204,7 +214,7 @@ public class Chapter1 {
 
 	private Stream<String> getDataFromLocalMemorySynchronously() {
 		return IntStream
-				.range(0, 100)
+				.range(0, 2000000000)
 				.mapToObj(Integer::toString);
 	}
 
@@ -221,7 +231,7 @@ public class Chapter1 {
 
 	private Observable<String> getDataFromNetworkAsynchronously() {
 		return Observable
-				.range(0, 100)
+				.range(0, 2000000000)
 				.map(Object::toString);
 	}
 

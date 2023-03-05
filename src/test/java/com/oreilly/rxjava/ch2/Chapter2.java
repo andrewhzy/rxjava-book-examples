@@ -22,7 +22,7 @@ import static java.math.BigInteger.ZERO;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-@Ignore
+
 public class Chapter2 {
 
 	@Test
